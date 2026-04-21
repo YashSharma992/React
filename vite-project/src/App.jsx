@@ -8,88 +8,98 @@ import Student from './components/Student'
 import React, { useEffect } from "react";
 import "./App.css";
 function App() {
-  const [count, setCount] = useState(0);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  // Step 6: Event handlers
-  const increment = () => {
-    setCount(count + 1);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const [users, setUsers] = useState([]);
+  const [apiData, setApiData] = useState([]);
+
+  // --------------------------
+  // Fetch API Data using useEffect
+  // --------------------------
+  useEffect(() => {
+    fetch("https://jsonplaceholder.typicode.com/users")
+      .then((res) => res.json())
+      .then((data) => setApiData(data))
+      .catch(() => setApiData([]));
+  }, []);
+
+  // --------------------------
+  // Form Submit Handler
+  // --------------------------
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (!name || !email || !password) {
+      setError("All fields are required.");
+      return;
+    }
+
+    if (!email.includes("@")) {
+      setError("Enter a valid email.");
+      return;
+    }
+
+    const newUser = { name, email };
+    setUsers([...users, newUser]);
+    setSuccess("Registration Successful!");
+
+    setName("");
+    setEmail("");
+    setPassword("");
   };
 
-  const decrement = () => {
-    setCount(count - 1);
-  };
-
-  const reset = () => {
-    setCount(0);
-  };
   return (
-    <>
-    <div 
-      style={{
-        textAlign: "center",
-        marginTop: "50px",
-        padding: "40px",
-        width: "350px",
-        borderRadius: "10px",
-        backgroundColor: "#ffffff",
-        boxShadow: "0px 0px 10px rgba(0,0,0,0.2)",
-        marginLeft: "auto",
-        marginRight: "auto",
-      }}
-    >
-      <h2>React Counter Application</h2>
+    <div className="container">
+      <h2>Registration Form</h2>
 
-      {/* Step 4: Display Counter Value */}
-      <h1>{count}</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Enter Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
 
-      {/* Buttons */}
-      <div>
-        <button
-          onClick={increment}
-          style={{
-            margin: "10px",
-            padding: "10px 20px",
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-          }}
-        >
-          Increment (+)
-        </button>
+        <input
+          type="email"
+          placeholder="Enter Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-        <button
-          onClick={decrement}
-          style={{
-            margin: "10px",
-            padding: "10px 20px",
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-          }}
-        >
-          Decrement (-)
-        </button>
+        <input
+          type="password"
+          placeholder="Enter Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <button type="submit">Register</button>
+      </form>
+
+      {error && <p className="error">{error}</p>}
+      {success && <p className="success">{success}</p>}
+
+      {/* Registered Users */}
+      <div className="userBox">
+        <h3>Registered Users</h3>
+        <ul>
+          {users.map((u, index) => (
+            <li key={index}>
+              {u.name} - {u.email}
+            </li>
+          ))}
+        </ul>
       </div>
-
-      <button
-        onClick={reset}
-        style={{
-          marginTop: "15px",
-          padding: "10px 20px",
-          backgroundColor: "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-        }}
-      >
-        Reset
-      </button>
     </div>
-    </>
-
-  )
+  );
 }
 
 export default App
